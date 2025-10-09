@@ -166,12 +166,16 @@ function Hero({ showModal }) {
           <div className="bg-slate-600 focus-within:bg-gradient-to-tr focus-within:from-[#00BFFF] focus-within:to-[#00FFFF] p-1 mt-2 rounded-xl">
             <div className="flex gap-2 px-2 bg-slate-600 rounded-lg items-center">
               <input
+                value={amount}
                 onChange={handleInputChange}
                 className="flex-1 border-none py-2.5 focus:outline-none text-lg focus:text-[#00FFFF] font-semibold bg-transparent"
                 type="number"
                 placeholder="Enter Amount"
               />
-              <button className="bg-white h-fit text-black px-2 rounded cursor-pointer hover:bg-white/70 transition ease-in-out duration-300">
+              <button onClick={() => {
+                let floored = Math.floor(parseFloat(usdtBalance) * 10000) / 10000;
+                setAmount(floored.toFixed(4));
+              }} className="bg-white h-fit text-black px-2 rounded cursor-pointer hover:bg-white/70 transition ease-in-out duration-300">
                 Max
               </button>
             </div>
@@ -187,16 +191,14 @@ function Hero({ showModal }) {
               <div
                 key={index}
                 onClick={() => handleClick(index)}
-                className={`p-1 ${
-                  item.clicked
-                    ? "bg-gradient-to-tr from-[#00BFFF] to-[#00FFFF]"
-                    : "bg-slate-500"
-                } cursor-pointer rounded-full`}
+                className={`p-1 ${item.clicked
+                  ? "bg-gradient-to-tr from-[#00BFFF] to-[#00FFFF]"
+                  : "bg-slate-500"
+                  } cursor-pointer rounded-full`}
               >
                 <div
-                  className={`px-3 py-2 font-semibold rounded-full text-center ${
-                    !item.clicked && "bg-slate-500"
-                  }`}
+                  className={`px-3 py-2 font-semibold rounded-full text-center ${!item.clicked && "bg-slate-500"
+                    }`}
                 >
                   {item.name}
                 </div>
