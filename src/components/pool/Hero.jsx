@@ -8,7 +8,7 @@ import { ethers, formatUnits } from "ethers";
 import { useNotification } from "../../hooks/useNotification";
 import { useParams } from "react-router";
 
-function Hero({ showModal }) {
+function Hero({ showModal, setUserStats, setData }) {
   const [dataBox, setDataBox] = useState([
     { name: "1 Day", clicked: true, percentage: 0.4, planId: 1 },
     { name: "7 Day", clicked: false, percentage: 4, planId: 2 },
@@ -18,11 +18,13 @@ function Hero({ showModal }) {
 
   const { ref } = useParams();
 
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState("");
   const [selectedBox, setSelectedBox] = useState(dataBox[0]);
   const [usdtValue, setUsdtValue] = useState(0);
   const [usdtBalance, setUsdtBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [refetch, setRefetch] = useState(false);
 
   const { showSuccess, showError } = useNotification();
 
@@ -52,12 +54,28 @@ function Hero({ showModal }) {
 
         // console.log(provider);
         const contract = new ethers.Contract(USDTAddress, erc20Abi, provider);
+        const ctr = new ethers.Contract(contractAddress, contractAbi, provider);
 
         const balance = await contract.balanceOf(walletAddress);
         const decimals = await contract.decimals();
 
         const formatted = formatUnits(balance, decimals);
         setUsdtBalance(formatted);
+
+        const data1 = await ctr.getUserDeposits(walletAddress);
+        const deposits = data1.map((item) => ({
+          user: item[0],
+          amount: ethers.formatUnits(item[1], 18), // assuming 18 decimals
+          reward: ethers.formatUnits(item[2], 18),
+          timestamp: Number(item[3]), // convert BigInt → number
+          withdrawn: item[4],
+        }));
+
+        setData(deposits);
+
+        const data2 = await ctr.getUserStats(walletAddress);
+        const formattedStats = data2.map((v) => formatUnits(v, 18)); // 18 decimals for ETH
+        setUserStats(formattedStats);
       } catch (error) {
         console.log(error);
         showError("Something went wrong while fetching the balance.");
@@ -67,7 +85,7 @@ function Hero({ showModal }) {
     };
 
     isConnected && getPrice();
-  }, [isConnected]);
+  }, [isConnected, refetch]);
 
   const handleClick = (index) => {
     const newData = dataBox.map((item, i) => ({
@@ -97,6 +115,7 @@ function Hero({ showModal }) {
         return;
       }
 
+      setLoading(true);
       const tokenContract = new ethers.Contract(USDTAddress, erc20Abi, signer);
 
       const contract = new ethers.Contract(
@@ -105,9 +124,27 @@ function Hero({ showModal }) {
         signer
       );
 
+      const value = ethers.parseUnits(amount, 18);
+
+      const tx = await tokenContract.approve(contractAddress, value);
+      await tx.wait();
+
+      const tx2 = await contract.invest(
+        value,
+        selectedBox.planId,
+        refrealAddress
+      );
+      await tx2.wait();
+
+      setRefetch((prev) => !prev);
       showSuccess("Transaction Successful!");
     } catch (error) {
       console.log(error);
+      showError("Transaction Failed");
+    } finally {
+      setLoading(false);
+      setAmount("");
+      setSelectedBox(dataBox[0]);
     }
   };
 
@@ -168,14 +205,19 @@ function Hero({ showModal }) {
               <input
                 value={amount}
                 onChange={handleInputChange}
+                disabled={loading}
                 className="flex-1 border-none py-2.5 focus:outline-none text-lg focus:text-[#00FFFF] font-semibold bg-transparent"
                 type="number"
                 placeholder="Enter Amount"
               />
-              <button onClick={() => {
-                let floored = Math.floor(parseFloat(usdtBalance) * 10000) / 10000;
-                setAmount(floored.toFixed(4));
-              }} className="bg-white h-fit text-black px-2 rounded cursor-pointer hover:bg-white/70 transition ease-in-out duration-300">
+              <button
+                onClick={() => {
+                  let floored =
+                    Math.floor(parseFloat(usdtBalance) * 10000) / 10000;
+                  setAmount(floored.toFixed(4));
+                }}
+                className="bg-white h-fit text-black px-2 rounded cursor-pointer hover:bg-white/70 transition ease-in-out duration-300"
+              >
                 Max
               </button>
             </div>
@@ -191,14 +233,16 @@ function Hero({ showModal }) {
               <div
                 key={index}
                 onClick={() => handleClick(index)}
-                className={`p-1 ${item.clicked
-                  ? "bg-gradient-to-tr from-[#00BFFF] to-[#00FFFF]"
-                  : "bg-slate-500"
-                  } cursor-pointer rounded-full`}
+                className={`p-1 ${
+                  item.clicked
+                    ? "bg-gradient-to-tr from-[#00BFFF] to-[#00FFFF]"
+                    : "bg-slate-500"
+                } cursor-pointer rounded-full`}
               >
                 <div
-                  className={`px-3 py-2 font-semibold rounded-full text-center ${!item.clicked && "bg-slate-500"
-                    }`}
+                  className={`px-3 py-2 font-semibold rounded-full text-center ${
+                    !item.clicked && "bg-slate-500"
+                  }`}
                 >
                   {item.name}
                 </div>
@@ -219,7 +263,7 @@ function Hero({ showModal }) {
             )}
             <span>
               <span className="text-gray-400 font-bold">
-                ~{parseFloat(usdtValue).toFixed(4)}
+                ~{usdtValue ? parseFloat(usdtValue).toFixed(4) : "0.0000"}
               </span>{" "}
               - USDT
             </span>
@@ -227,10 +271,15 @@ function Hero({ showModal }) {
           {isConnected ? (
             <button
               onClick={handleSubmit}
-              className="bg-gradient-to-tr from-[#00BFFF] to-[#00FFFF] mt-3 w-full py-2 rounded-full font-bold text-black/80 
+              disabled={loading}
+              className="disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-tr from-[#00BFFF] to-[#00FFFF] mt-3 w-full py-2 rounded-full font-bold text-black/80 
                cursor-pointer hover:scale-103 hover:-translate-y-0.5 transition ease-in-out duration-200"
             >
-              Submit
+              {loading ? (
+                <span className="loading loading-spinner loading-md"></span>
+              ) : (
+                "Submit"
+              )}
             </button>
           ) : (
             <button
@@ -242,6 +291,11 @@ function Hero({ showModal }) {
             >
               Connect Wallet
             </button>
+          )}
+          {loading && (
+            <div className="text-center mt-3 font-bold text-red-400">
+              Please Do Not Close The Tab!
+            </div>
           )}
         </div>
       </div>

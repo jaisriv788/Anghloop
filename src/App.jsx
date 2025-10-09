@@ -80,6 +80,14 @@ function App() {
       <Routes key={pathname}>
         {/* <Route path="/" element={<Home />} /> */}
         <Route path="/loop/:ref?" element={<Pool showModal={visibility} />} />
+        <Route
+          path="/*"
+          element={
+            <div className="min-h-screen flex justify-center items-center">
+              Page Not Found
+            </div>
+          }
+        />
         {/* <Route path="/saving" element={<Saving />} /> */}
         {/* <Route path="/saving/total" element={<Total />} /> */}
       </Routes>

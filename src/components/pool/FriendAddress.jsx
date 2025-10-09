@@ -7,7 +7,7 @@ import { FaShareAltSquare } from "react-icons/fa";
 import { RiExchangeBoxLine } from "react-icons/ri";
 import gif from "../../assets/gif2.gif";
 
-function FriendAddress() {
+function FriendAddress({ stats }) {
   const [data, setData] = useState([
     { title: "1st generation", value: 0 },
     { title: "2nd generation", value: 0 },
@@ -24,7 +24,7 @@ function FriendAddress() {
       }}
       className="py-17"
     >
-      <div className="flex justify-center items-center gap-2">
+      {/* <div className="flex justify-center items-center gap-2">
         <span className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-[#00BFFF] to-[#00FFFF] text-transparent bg-clip-text">
           Friend Address
         </span>
@@ -47,7 +47,7 @@ function FriendAddress() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
       <div className="flex flex-col md:flex-row max-w-4xl px-2 gap-6 mt-10 mx-auto">
         {/* Teams Section */}
         <div className="flex-1 flex flex-col items-center">
@@ -59,7 +59,9 @@ function FriendAddress() {
                 <AiFillThunderbolt />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold">0</span>
+                <span className="text-2xl font-bold">
+                  {stats[0] ? Math.floor(stats[0]) : "0"}
+                </span>
                 <span className="text-sm text-gray-300 font-bold">
                   Invitation
                 </span>
@@ -71,7 +73,10 @@ function FriendAddress() {
                 <TiGroup />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold">0</span>
+                <span className="text-2xl font-bold">
+                  {" "}
+                  {stats[0] ? Math.floor(stats[2]) : "0"}
+                </span>
                 <span className="text-sm text-gray-300 font-bold">
                   Participating Users
                 </span>
@@ -83,7 +88,9 @@ function FriendAddress() {
                 <SiMoneygram />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold">0</span>
+                <span className="text-2xl font-bold">
+                  {stats[0] ? parseFloat(stats[3]).toFixed(2) : "0.00"}
+                </span>
                 <span className="text-sm text-gray-300 font-bold">
                   Participation Amount
                 </span>
@@ -101,7 +108,10 @@ function FriendAddress() {
                 <TfiTarget />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold">0</span>
+                <span className="text-2xl font-bold">
+                  {" "}
+                  {stats[0] ? parseFloat(stats[4]).toFixed(2) : "0.00"}
+                </span>
                 <span className="text-sm text-gray-300 font-bold">
                   Personal Circulation
                 </span>
@@ -113,7 +123,10 @@ function FriendAddress() {
                 <FaShareAltSquare />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold">0</span>
+                <span className="text-2xl font-bold">
+                  {" "}
+                  {stats[0] ? parseFloat(stats[5]).toFixed(2) : "0.00"}
+                </span>
                 <span className="text-sm text-gray-300 font-bold">
                   Personal Returns
                 </span>
@@ -125,7 +138,10 @@ function FriendAddress() {
                 <RiExchangeBoxLine />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold">0</span>
+                <span className="text-2xl font-bold">
+                  {" "}
+                  {stats[0] ? parseFloat(stats[6]).toFixed(2) : "0.00"}
+                </span>
                 <span className="text-sm text-gray-300 font-bold">
                   Sharing Benefits
                 </span>
