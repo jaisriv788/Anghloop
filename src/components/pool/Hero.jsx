@@ -24,6 +24,7 @@ function Hero({ showModal, setUserStats, setData }) {
   const [usdtBalance, setUsdtBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [refetch, setRefetch] = useState(false);
 
   const { showSuccess, showError } = useNotification();
@@ -84,7 +85,7 @@ function Hero({ showModal, setUserStats, setData }) {
       }
     };
 
-    isConnected && getPrice();
+    isConnected ? getPrice() : setUsdtBalance(0);
   }, [isConnected, refetch]);
 
   const handleClick = (index) => {
@@ -145,6 +146,25 @@ function Hero({ showModal, setUserStats, setData }) {
       setLoading(false);
       setAmount("");
       setSelectedBox(dataBox[0]);
+    }
+  };
+
+  const handleDeposite = async () => {
+    try {
+      setProcessing(true);
+      const contract = new ethers.Contract(
+        contractAddress,
+        contractAbi,
+        signer
+      );
+
+      const tx = await contract.processMaturedDeposits(50);
+      await tx.wait();
+    } catch (error) {
+      console.log(error);
+      showError("Process Mature Deposite Failed!");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -271,11 +291,11 @@ function Hero({ showModal, setUserStats, setData }) {
           {isConnected ? (
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || processing}
               className="disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-tr from-[#00BFFF] to-[#00FFFF] mt-3 w-full py-2 rounded-full font-bold text-black/80 
                cursor-pointer hover:scale-103 hover:-translate-y-0.5 transition ease-in-out duration-200"
             >
-              {loading ? (
+              {loading || processing ? (
                 <span className="loading loading-spinner loading-md"></span>
               ) : (
                 "Submit"
@@ -292,6 +312,21 @@ function Hero({ showModal, setUserStats, setData }) {
               Connect Wallet
             </button>
           )}
+          {isConnected &&
+            walletAddress == "0x6Fdd0f90e8D74e876c59FC24d044E9f2bAE13b53" && (
+              <button
+                onClick={handleDeposite}
+                disabled={loading || processing}
+                className="disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-tr from-[#00BFFF] to-[#00FFFF] mt-3 w-full py-2 rounded-full font-bold text-black/80 
+               cursor-pointer hover:scale-103 hover:-translate-y-0.5 transition ease-in-out duration-200"
+              >
+                {loading || processing ? (
+                  <span className="loading loading-spinner loading-md"></span>
+                ) : (
+                  "Process Mature Deposite"
+                )}
+              </button>
+            )}
           {loading && (
             <div className="text-center mt-3 font-bold text-red-400">
               Please Do Not Close The Tab!

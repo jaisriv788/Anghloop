@@ -13,12 +13,12 @@ function Orders({ tableData }) {
         <span className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-[#00BFFF] to-[#00FFFF] text-transparent bg-clip-text">
           Orders
         </span>
-        <button
+        {/* <button
           onClick={() => console.log("Refreshed Clicked!")}
           className="border px-2 rounded-lg cursor-pointer text-sm text-[#00BFFF]"
         >
           Refresh
-        </button>
+        </button> */}
       </div>
       {!isConnected ? (
         <div className="mt-5 flex items-center justify-center h-30 text-gray-300">
