@@ -91,7 +91,7 @@ const Navbar = ({ showModal }) => {
             Loop
           </Link>
           <Link
-            // to="/saving"
+            to="/saving"
             className={`${
               isSaving || isSavingTotal
                 ? "text-[#00FFFF]"
