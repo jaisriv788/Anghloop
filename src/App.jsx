@@ -1,11 +1,11 @@
 import Pool from "./screens/Pool";
-// import Home from "./screens/Home";
+import Home from "./screens/Home";
 import Saving from "./screens/Saving";
 import { Routes, Route, useLocation } from "react-router";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
 import WalletOptions from "./components/WalletOptions";
-// import Total from "./components/saving/Total";
+import Total from "./components/saving/Total";
 import { useState, useLayoutEffect } from "react";
 import { useSelector } from "react-redux";
 
@@ -78,8 +78,10 @@ function App() {
 
       <Navbar showModal={visibility} />
       <Routes key={pathname}>
-        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/" element={<Home />} />
         <Route path="/loop/:ref?" element={<Pool showModal={visibility} />} />
+        <Route path="/saving" element={<Saving />} />
+        <Route path="/saving/total" element={<Total />} />
         <Route
           path="/*"
           element={
@@ -88,8 +90,6 @@ function App() {
             </div>
           }
         />
-        <Route path="/saving" element={<Saving />} />
-        {/* <Route path="/saving/total" element={<Total />} /> */}
       </Routes>
       <Footer />
     </div>
